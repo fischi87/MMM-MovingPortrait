@@ -1,0 +1,43 @@
+{
+  "name": "mmm-movingportrait",
+  "version": "1.0.0",
+  "description": "MagicMirror² module for displaying animated portrait videos with rotation and customizable frames",
+  "main": "MMM-MovingPortrait.js",
+  "scripts": {
+    "lint": "eslint MMM-MovingPortrait.js",
+    "lint:fix": "eslint MMM-MovingPortrait.js --fix",
+    "test": "echo \"Tests can be added here\" && exit 0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fischi87/MMM-MovingPortrait.git"
+  },
+  "keywords": [
+    "MagicMirror",
+    "magic-mirror",
+    "module",
+    "portrait",
+    "video",
+    "animated",
+    "hogwarts",
+    "harry-potter",
+    "moving-portrait",
+    "rotation",
+    "gallery"
+  ],
+  "author": "Axel",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/fischi87/MMM-MovingPortrait/issues"
+  },
+  "homepage": "https://github.com/fischi87/MMM-MovingPortrait#readme",
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "devDependencies": {
+    "eslint": "^8.56.0"
+  },
+  "peerDependencies": {
+    "magicmirror": ">=2.20.0"
+  }
+}
