@@ -5,6 +5,28 @@ All notable changes to MMM-MovingPortrait will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0] - 2026-01-11
+
+### Added
+- **Notification Support** - Full notification system for controlling the module
+  - `PORTRAIT_SHOW` - Show the module
+  - `PORTRAIT_HIDE` - Hide the module
+  - `PORTRAIT_TOGGLE` - Toggle between show/hide states
+  - `PORTRAIT_NEXT` - Navigate to next portrait
+  - `PORTRAIT_PREVIOUS` - Navigate to previous portrait
+  - `PORTRAIT_SELECT` - Select portrait by index or name
+  - `PORTRAIT_PAUSE` - Pause automatic rotation
+  - `PORTRAIT_RESUME` - Resume automatic rotation
+  - `PORTRAIT_STOP_ROTATION` - Stop rotation completely
+- Module visibility control (show/hide functionality)
+- Enhanced rotation pause/resume capability
+- Better integration with other MagicMirror² modules
+
+### Improved
+- Code structure with `updatePortraitDisplay()` helper method
+- Better state management for visibility and rotation pause states
+- Enhanced logging for notification events
+
 ## [1.0.0] - 2026-01-11
 
 ### Added
@@ -46,7 +68,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Time-based activation schedules
 - Audio/sound effect support
 - Touch interaction for manual portrait switching
-- Remote control via notifications
 - Custom CSS themes
 - Portrait playlist management
 - Advanced transition effects

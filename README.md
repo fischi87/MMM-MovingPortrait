@@ -13,6 +13,7 @@ Perfect for creating a Hogwarts-style moving portrait gallery on your MagicMirro
 - 🖼️ **Frame Styles** - Choose from Hogwarts Gold, Vintage Wood, Modern, or No Frame
 - ✨ **Soft Edges** - Optional smooth edge transitions for a painted look
 - 📝 **Name Overlay** - Show character names with stylish overlay
+- 🔔 **Notification Support** - Control playback and visibility via notifications
 - ⚙️ **Fully Configurable** - Customize size, opacity, timing, and more
 - 🎨 **CSS Customizable** - Easy to extend with your own frame styles
 
@@ -28,16 +29,10 @@ cd ~/MagicMirror/modules
 git clone https://github.com/fischi87/MMM-MovingPortrait.git
 ```
 
-3. Create a `videos` folder in the module directory:
-```bash
-cd MMM-MovingPortrait
-mkdir videos
-```
-
-4. Add your portrait videos to the `videos` folder:
+3. Add your portrait videos to the `videos` folder:
 ```bash
 # Copy your video files
-cp /path/to/your/portrait.mp4 videos/
+cp /path/to/your/portrait.mp4 ~/MagicMirror/modules/MMM-MovingPortrait/videos/
 ```
 
 ## Configuration
@@ -207,6 +202,67 @@ Edit the `.soft-edges-overlay` class in CSS:
 }
 ```
 
+## Notifications
+
+The module supports the following notifications for controlling playback and visibility:
+
+### Show / Hide / Toggle
+
+```javascript
+// Show the module
+this.sendNotification("PORTRAIT_SHOW");
+
+// Hide the module
+this.sendNotification("PORTRAIT_HIDE");
+
+// Toggle between show/hide
+this.sendNotification("PORTRAIT_TOGGLE");
+```
+
+### Navigation
+
+```javascript
+// Show next portrait
+this.sendNotification("PORTRAIT_NEXT");
+
+// Show previous portrait
+this.sendNotification("PORTRAIT_PREVIOUS");
+
+// Select specific portrait by index (0-based)
+this.sendNotification("PORTRAIT_SELECT", { index: 2 });
+
+// Select specific portrait by name
+this.sendNotification("PORTRAIT_SELECT", { name: "Albus Dumbledore" });
+```
+
+### Rotation Control
+
+```javascript
+// Pause automatic rotation
+this.sendNotification("PORTRAIT_PAUSE");
+
+// Resume automatic rotation
+this.sendNotification("PORTRAIT_RESUME");
+
+// Stop rotation (same as pause, but with different intent)
+this.sendNotification("PORTRAIT_STOP_ROTATION");
+```
+
+### Example: Control from Other Module
+
+```javascript
+// In another module's script
+Module.register("MyControlModule", {
+    notificationReceived: function(notification, payload, sender) {
+        if (notification === "BUTTON_PRESSED") {
+            if (payload.button === "next") {
+                this.sendNotification("PORTRAIT_NEXT");
+            }
+        }
+    }
+});
+```
+
 ## Troubleshooting
 
 ### Videos not playing
@@ -328,6 +384,13 @@ Created by Axel
 Inspired by the moving portraits from Harry Potter and the Hogwarts castle.
 
 ## Changelog
+
+### Version 1.1.0 (2026-01-11)
+- Added Notification Support for external module control
+- Added module visibility control (show/hide/toggle)
+- Enhanced rotation pause/resume capabilities
+- Improved code structure with helper methods
+- Better logging for notifications
 
 ### Version 1.0.0 (2026-01-11)
 - Initial release
