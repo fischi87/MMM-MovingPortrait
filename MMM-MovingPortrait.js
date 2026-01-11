@@ -252,31 +252,33 @@ Module.register("MMM-MovingPortrait", {
     },
 
     showModule: function() {
-        if (!this.isVisible) {
-            this.isVisible = true;
-            const wrapper = document.querySelector(".mmm-moving-portrait-wrapper");
-            if (wrapper) {
-                wrapper.style.display = "block";
-            }
-            Log.info("MMM-MovingPortrait: Shown");
-            if (!this.isRotationPaused && this.config.portraits.length > 1 && this.config.rotationInterval > 0) {
-                this.scheduleRotation();
-            }
+        this.isVisible = true;
+        this.show(1000, {lockString: this.identifier});
+        Log.info("MMM-MovingPortrait: Shown");
+    
+        // Resume videos
+        const videos = document.querySelectorAll(".portrait-video");
+        videos.forEach(v => v.play());
+    
+        // Resume rotation
+        if (!this.isRotationPaused && this.config.portraits.length > 1 && this.config.rotationInterval > 0) {
+            this.scheduleRotation();
         }
     },
 
     hideModule: function() {
-        if (this.isVisible) {
-            this.isVisible = false;
-            const wrapper = document.querySelector(".mmm-moving-portrait-wrapper");
-            if (wrapper) {
-                wrapper.style.display = "none";
-            }
-            if (this.rotationTimer) {
-                clearTimeout(this.rotationTimer);
-            }
-            Log.info("MMM-MovingPortrait: Hidden");
+        this.isVisible = false;
+        this.hide(1000, {lockString: this.identifier});
+    
+        // Pause videos
+        const videos = document.querySelectorAll(".portrait-video");
+        videos.forEach(v => v.pause());
+    
+        // Stop rotation
+        if (this.rotationTimer) {
+            clearTimeout(this.rotationTimer);
         }
+        Log.info("MMM-MovingPortrait: Hidden");
     },
 
     toggleModule: function() {
