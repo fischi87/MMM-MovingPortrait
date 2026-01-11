@@ -60,47 +60,48 @@ Module.register("MMM-MovingPortrait", {
     },
 
     getDom: function() {
-        const wrapper = document.createElement("div");
-        wrapper.className = "mmm-moving-portrait-wrapper";
-        
-        // Create container for video with frame
-        const container = document.createElement("div");
-        container.className = "portrait-container";
-        container.classList.add("frame-" + this.config.frameStyle);
-        
-        // Apply size
-        container.style.width = this.config.width;
-        container.style.height = this.config.height;
-        
-        // Create two video elements for crossfade
-        const video1 = this.createVideoElement(this.currentIndex);
-        video1.className = "portrait-video active";
-        
-        const video2 = this.createVideoElement(this.currentIndex);
-        video2.className = "portrait-video inactive";
-        video2.style.opacity = "0";
-        
-        container.appendChild(video1);
-        container.appendChild(video2);
-        
-        // Add soft edges overlay if enabled
-        if (this.config.softEdges) {
-            const overlay = document.createElement("div");
-            overlay.className = "soft-edges-overlay";
-            container.appendChild(overlay);
-        }
-        
-        // Add character name if enabled
-        if (this.config.showName) {
-            const nameOverlay = document.createElement("div");
-            nameOverlay.className = "portrait-name " + this.config.namePosition;
-            nameOverlay.textContent = this.config.portraits[this.currentIndex].name || "";
-            container.appendChild(nameOverlay);
-        }
-        
-        wrapper.appendChild(container);
-        return wrapper;
-    },
+    const wrapper = document.createElement("div");
+    wrapper.className = "mmm-moving-portrait-wrapper";
+    
+    // Create container for video with frame
+    const container = document.createElement("div");
+    container.className = "portrait-container";
+    container.classList.add("frame-" + this.config.frameStyle);
+    
+    // Apply size and opacity from config
+    container.style.width = this.config.width;
+    container.style.height = this.config.height;
+    container.style.opacity = this.config.opacity;
+    
+    // Create two video elements for crossfade
+    const video1 = this.createVideoElement(this.currentIndex);
+    video1.className = "portrait-video active";
+    
+    const video2 = this.createVideoElement(this.currentIndex);
+    video2.className = "portrait-video inactive";
+    video2.style.opacity = "0";
+    
+    container.appendChild(video1);
+    container.appendChild(video2);
+    
+    // Add soft edges overlay if enabled
+    if (this.config.softEdges) {
+        const overlay = document.createElement("div");
+        overlay.className = "soft-edges-overlay";
+        container.appendChild(overlay);
+    }
+    
+    // Add character name if enabled
+    if (this.config.showName) {
+        const nameOverlay = document.createElement("div");
+        nameOverlay.className = "portrait-name " + this.config.namePosition;
+        nameOverlay.innerHTML = this.config.portraits[this.currentIndex].name || "";
+        container.appendChild(nameOverlay);
+    }
+    
+    wrapper.appendChild(container);
+    return wrapper;
+},
 
     createVideoElement: function(index) {
         const portrait = this.config.portraits[index];
