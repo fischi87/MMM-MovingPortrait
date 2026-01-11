@@ -1,0 +1,232 @@
+/* MMM-MovingPortrait Example Configurations
+ * 
+ * Copy the configuration you want to use into your config/config.js file
+ * Make sure to adjust the file paths to match your video filenames
+ */
+
+// ============================================
+// EXAMPLE 1: Single Wizard Portrait
+// ============================================
+{
+    module: "MMM-MovingPortrait",
+    position: "middle_center",
+    config: {
+        portraits: [
+            { file: "dumbledore.mp4", name: "Albus Dumbledore" }
+        ],
+        width: "400px",
+        height: "600px",
+        frameStyle: "hogwarts",
+        opacity: 0.85,
+        softEdges: true
+    }
+}
+
+// ============================================
+// EXAMPLE 2: Rotating Hogwarts Professors
+// ============================================
+{
+    module: "MMM-MovingPortrait",
+    position: "top_left",
+    config: {
+        portraits: [
+            { file: "dumbledore.mp4", name: "Albus Dumbledore" },
+            { file: "mcgonagall.mp4", name: "Minerva McGonagall" },
+            { file: "snape.mp4", name: "Severus Snape" },
+            { file: "sprout.mp4", name: "Pomona Sprout" }
+        ],
+        width: "350px",
+        height: "525px",
+        frameStyle: "hogwarts",
+        rotationInterval: 25000,  // Change every 25 seconds
+        fadeTransitionDuration: 2500,  // 2.5 second fade
+        showName: true,
+        namePosition: "bottom",
+        opacity: 0.9,
+        softEdges: true
+    }
+}
+
+// ============================================
+// EXAMPLE 3: Vintage Portrait Gallery
+// ============================================
+{
+    module: "MMM-MovingPortrait",
+    position: "top_right",
+    config: {
+        portraits: [
+            { file: "portrait1.mp4", name: "Lord Blackwood" },
+            { file: "portrait2.mp4", name: "Lady Ravenclaw" },
+            { file: "portrait3.mp4", name: "Sir Edmund" }
+        ],
+        width: "300px",
+        height: "450px",
+        frameStyle: "vintage",
+        rotationInterval: 30000,
+        fadeTransitionDuration: 3000,
+        showName: true,
+        namePosition: "top",
+        opacity: 0.8
+    }
+}
+
+// ============================================
+// EXAMPLE 4: Modern Minimal Portrait
+// ============================================
+{
+    module: "MMM-MovingPortrait",
+    position: "bottom_left",
+    config: {
+        portraits: [
+            { file: "modern-portrait.mp4" }
+        ],
+        width: "320px",
+        height: "480px",
+        frameStyle: "modern",
+        opacity: 0.9,
+        softEdges: false,
+        showName: false
+    }
+}
+
+// ============================================
+// EXAMPLE 5: No Frame, Pure Video
+// ============================================
+{
+    module: "MMM-MovingPortrait",
+    position: "middle_center",
+    config: {
+        portraits: [
+            { file: "wizard.mp4" }
+        ],
+        width: "450px",
+        height: "675px",
+        frameStyle: "none",
+        opacity: 0.85,
+        softEdges: true,
+        showName: false
+    }
+}
+
+// ============================================
+// EXAMPLE 6: Multiple Portraits, Fast Rotation
+// ============================================
+{
+    module: "MMM-MovingPortrait",
+    position: "upper_third",
+    config: {
+        portraits: [
+            { file: "wizard1.mp4", name: "Portrait One" },
+            { file: "wizard2.mp4", name: "Portrait Two" },
+            { file: "wizard3.mp4", name: "Portrait Three" },
+            { file: "wizard4.mp4", name: "Portrait Four" },
+            { file: "wizard5.mp4", name: "Portrait Five" }
+        ],
+        width: "400px",
+        height: "600px",
+        frameStyle: "hogwarts",
+        rotationInterval: 15000,  // Fast: every 15 seconds
+        fadeTransitionDuration: 1500,
+        showName: true,
+        namePosition: "bottom",
+        opacity: 0.85
+    }
+}
+
+// ============================================
+// EXAMPLE 7: Large Centered Display
+// ============================================
+{
+    module: "MMM-MovingPortrait",
+    position: "middle_center",
+    config: {
+        portraits: [
+            { file: "main-wizard.mp4", name: "Headmaster" }
+        ],
+        width: "600px",
+        height: "900px",
+        frameStyle: "hogwarts",
+        opacity: 0.9,
+        softEdges: true,
+        showName: true,
+        namePosition: "bottom"
+    }
+}
+
+// ============================================
+// EXAMPLE 8: Small Corner Portrait
+// ============================================
+{
+    module: "MMM-MovingPortrait",
+    position: "bottom_right",
+    config: {
+        portraits: [
+            { file: "small-portrait.mp4" }
+        ],
+        width: "250px",
+        height: "375px",
+        frameStyle: "vintage",
+        opacity: 0.8,
+        softEdges: true,
+        showName: false
+    }
+}
+
+// ============================================
+// EXAMPLE 9: Two Portraits Side by Side
+// You'll need to add two module instances
+// ============================================
+
+// First portrait (left side)
+{
+    module: "MMM-MovingPortrait",
+    position: "top_left",
+    config: {
+        portraits: [
+            { file: "wizard-left.mp4", name: "Gryffindor" }
+        ],
+        width: "300px",
+        height: "450px",
+        frameStyle: "hogwarts",
+        showName: true
+    }
+}
+
+// Second portrait (right side)
+{
+    module: "MMM-MovingPortrait",
+    position: "top_right",
+    config: {
+        portraits: [
+            { file: "wizard-right.mp4", name: "Slytherin" }
+        ],
+        width: "300px",
+        height: "450px",
+        frameStyle: "hogwarts",
+        showName: true
+    }
+}
+
+// ============================================
+// EXAMPLE 10: Slow Subtle Rotation
+// ============================================
+{
+    module: "MMM-MovingPortrait",
+    position: "middle_center",
+    config: {
+        portraits: [
+            { file: "portrait1.mp4", name: "Past Headmaster I" },
+            { file: "portrait2.mp4", name: "Past Headmaster II" },
+            { file: "portrait3.mp4", name: "Past Headmaster III" }
+        ],
+        width: "400px",
+        height: "600px",
+        frameStyle: "hogwarts",
+        rotationInterval: 60000,  // Slow: every 60 seconds
+        fadeTransitionDuration: 4000,  // Long fade: 4 seconds
+        showName: true,
+        namePosition: "bottom",
+        opacity: 0.85,
+        softEdges: true
+    }
+}

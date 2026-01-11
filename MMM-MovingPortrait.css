@@ -1,0 +1,264 @@
+/* MMM-MovingPortrait Styling */
+
+/* ============================================
+   MAIN WRAPPER & POSITIONING
+   ============================================ */
+
+.module.MMM-MovingPortrait {
+    text-align: center;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.mmm-moving-portrait-wrapper {
+    display: inline-block;
+    position: relative;
+}
+
+/* ============================================
+   PORTRAIT CONTAINER
+   ============================================ */
+
+.portrait-container {
+    position: relative;
+    display: inline-block;
+    overflow: visible;
+}
+
+/* ============================================
+   VIDEO ELEMENTS
+   ============================================ */
+
+.portrait-video {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: opacity 2s ease-in-out;
+}
+
+.portrait-video.active {
+    z-index: 1;
+    opacity: 1;
+}
+
+.portrait-video.inactive {
+    z-index: 0;
+    opacity: 0;
+}
+
+/* ============================================
+   SOFT EDGES OVERLAY
+   ============================================ */
+
+.soft-edges-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    box-shadow: inset 0 0 100px 60px black;
+    pointer-events: none;
+    z-index: 2;
+}
+
+/* ============================================
+   FRAME STYLES
+   ============================================ */
+
+/* Hogwarts Gold Frame */
+.portrait-container.frame-hogwarts {
+    border: 15px solid #8B6914;
+    border-image: linear-gradient(135deg, 
+        #D4AF37 0%, 
+        #8B6914 25%, 
+        #D4AF37 50%, 
+        #8B6914 75%, 
+        #D4AF37 100%) 1;
+    box-shadow: 
+        0 0 30px rgba(212, 175, 55, 0.4),
+        inset 0 0 20px rgba(0, 0, 0, 0.5),
+        0 8px 20px rgba(0, 0, 0, 0.8);
+    border-radius: 8px;
+    background: linear-gradient(135deg, #8B6914, #D4AF37, #8B6914);
+    padding: 3px;
+}
+
+.portrait-container.frame-hogwarts::before {
+    content: '';
+    position: absolute;
+    top: -18px;
+    left: -18px;
+    right: -18px;
+    bottom: -18px;
+    border: 3px solid rgba(212, 175, 55, 0.3);
+    border-radius: 10px;
+    pointer-events: none;
+    box-shadow: 0 0 40px rgba(212, 175, 55, 0.2);
+}
+
+/* Vintage Wood Frame */
+.portrait-container.frame-vintage {
+    border: 20px solid #5C4033;
+    box-shadow: 
+        0 0 20px rgba(0, 0, 0, 0.6),
+        inset 0 0 30px rgba(0, 0, 0, 0.4),
+        inset 0 0 10px rgba(139, 69, 19, 0.3);
+    border-radius: 5px;
+    background: linear-gradient(135deg, 
+        #5C4033 0%, 
+        #3E2723 50%, 
+        #5C4033 100%);
+}
+
+.portrait-container.frame-vintage::after {
+    content: '';
+    position: absolute;
+    top: -25px;
+    left: -25px;
+    right: -25px;
+    bottom: -25px;
+    border: 5px solid rgba(92, 64, 51, 0.4);
+    border-radius: 8px;
+    pointer-events: none;
+}
+
+/* Modern Minimal Frame */
+.portrait-container.frame-modern {
+    border: 8px solid #2C3E50;
+    box-shadow: 
+        0 0 25px rgba(0, 0, 0, 0.7),
+        inset 0 0 15px rgba(0, 0, 0, 0.3);
+    border-radius: 2px;
+    background: linear-gradient(135deg, #34495E, #2C3E50);
+}
+
+.portrait-container.frame-modern::before {
+    content: '';
+    position: absolute;
+    top: -12px;
+    left: -12px;
+    right: -12px;
+    bottom: -12px;
+    border: 2px solid rgba(52, 73, 94, 0.5);
+    border-radius: 4px;
+    pointer-events: none;
+}
+
+/* No Frame */
+.portrait-container.frame-none {
+    border: none;
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.8);
+    border-radius: 15px;
+}
+
+/* ============================================
+   CHARACTER NAME OVERLAY
+   ============================================ */
+
+.portrait-name {
+    position: absolute;
+    left: 0;
+    right: 0;
+    padding: 15px 20px;
+    background: linear-gradient(to bottom, 
+        rgba(0, 0, 0, 0.8), 
+        rgba(0, 0, 0, 0.9));
+    color: #D4AF37;
+    font-family: 'Cinzel', 'Times New Roman', serif;
+    font-size: 18px;
+    font-weight: 600;
+    text-align: center;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+    letter-spacing: 2px;
+    z-index: 3;
+    pointer-events: none;
+}
+
+.portrait-name.top {
+    top: 0;
+    border-radius: 8px 8px 0 0;
+    background: linear-gradient(to bottom, 
+        rgba(0, 0, 0, 0.9), 
+        rgba(0, 0, 0, 0.7),
+        transparent);
+}
+
+.portrait-name.bottom {
+    bottom: 0;
+    border-radius: 0 0 8px 8px;
+    background: linear-gradient(to top, 
+        rgba(0, 0, 0, 0.9), 
+        rgba(0, 0, 0, 0.7),
+        transparent);
+}
+
+/* ============================================
+   OPACITY CONTROL
+   ============================================ */
+
+.portrait-container {
+    opacity: 0.85;  /* Default, can be overridden by config */
+}
+
+/* ============================================
+   ANIMATIONS & TRANSITIONS
+   ============================================ */
+
+@keyframes portraitPulse {
+    0%, 100% { 
+        box-shadow: 0 0 30px rgba(212, 175, 55, 0.3);
+    }
+    50% { 
+        box-shadow: 0 0 45px rgba(212, 175, 55, 0.5);
+    }
+}
+
+.portrait-container.frame-hogwarts {
+    animation: portraitPulse 8s ease-in-out infinite;
+}
+
+/* Subtle hover effect (if touch/mouse enabled) */
+.portrait-container:hover {
+    transform: scale(1.02);
+    transition: transform 0.3s ease-in-out;
+}
+
+.portrait-container {
+    transition: transform 0.3s ease-in-out;
+}
+
+/* ============================================
+   RESPONSIVE ADJUSTMENTS
+   ============================================ */
+
+@media (max-width: 768px) {
+    .portrait-name {
+        font-size: 14px;
+        padding: 10px 15px;
+        letter-spacing: 1px;
+    }
+}
+
+/* ============================================
+   LOADING STATE
+   ============================================ */
+
+.portrait-video:not([src]) {
+    background: radial-gradient(circle, #1a1a1a 0%, #000000 100%);
+}
+
+/* ============================================
+   PRINT STYLES
+   ============================================ */
+
+@media print {
+    .module.MMM-MovingPortrait {
+        display: none;
+    }
+}
