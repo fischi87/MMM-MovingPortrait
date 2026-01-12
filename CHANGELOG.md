@@ -5,6 +5,20 @@ All notable changes to MMM-MovingPortrait will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.1] - 2026-01-12
+
+### Added
+- **Random Portrait Selection** - New `randomOnShow` config option
+- Module now starts with random portrait when shown (if multiple portraits configured)
+- Random selection also applies on initial module start
+
+### Configuration
+- `randomOnShow` - Boolean, default: `true` - Start with random portrait when showing module
+
+### Fixed
+- Improved suspend/resume functions with proper video pause/play
+- Better broadcast support across all MagicMirror clients
+
 ## [1.2.0] - 2026-01-12
 
 ### Added

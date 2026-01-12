@@ -111,6 +111,7 @@ Add the module to your `config/config.js` file:
 | `autoplay` | Boolean | `true` | Autoplay videos |
 | `loop` | Boolean | `true` | Loop videos |
 | `muted` | Boolean | `true` | Mute video audio |
+| `randomOnShow` | Boolean | `true` | Start with random portrait when module is shown |
 
 ## Frame Styles
 
