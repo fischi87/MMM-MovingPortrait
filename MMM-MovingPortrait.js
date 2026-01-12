@@ -37,13 +37,19 @@ Module.register("MMM-MovingPortrait", {
         muted: true,
         
         // Path to videos folder (relative to module folder)
-        videosPath: "videos/"
+        videosPath: "videos/",
+        
+        // Time-based schedule
+        scheduleEnabled: false,  // Enable time-based visibility control
+        schedules: []  // Array of {start: "HH:MM", end: "HH:MM"} objects
     },
 
     currentIndex: 0,
     rotationTimer: null,
     isVisible: true,
     isRotationPaused: false,
+    scheduleTimer: null,
+    isScheduleHidden: false,  // Track if module is hidden by schedule
 
     start: function() {
         Log.info("Starting module: " + this.name);
@@ -53,6 +59,11 @@ Module.register("MMM-MovingPortrait", {
         if (!this.config.portraits || this.config.portraits.length === 0) {
             Log.error("MMM-MovingPortrait: No portraits configured!");
             this.config.portraits = [{ file: "portrait.mp4", name: "Default" }];
+        }
+        
+        // Start time-based schedule checker if enabled
+        if (this.config.scheduleEnabled && this.config.schedules.length > 0) {
+            this.startScheduleChecker();
         }
         
         // Start rotation if multiple portraits and interval > 0
@@ -208,9 +219,17 @@ Module.register("MMM-MovingPortrait", {
         if (this.rotationTimer) {
             clearTimeout(this.rotationTimer);
         }
+        // Stop schedule checker
+        if (this.scheduleTimer) {
+            clearInterval(this.scheduleTimer);
+        }
     },
 
     resume: function() {
+        // Resume schedule checker if enabled
+        if (this.config.scheduleEnabled && this.config.schedules.length > 0) {
+            this.startScheduleChecker();
+        }
         // Resume rotation when module is shown again
         if (this.config.portraits.length > 1 && this.config.rotationInterval > 0) {
             this.scheduleRotation();
@@ -362,6 +381,65 @@ Module.register("MMM-MovingPortrait", {
             this.rotationTimer = null;
         }
         Log.info("MMM-MovingPortrait: Rotation stopped");
+    },
+
+    startScheduleChecker: function() {
+        const self = this;
+        
+        // Check immediately on start
+        this.checkSchedule();
+        
+        // Check every 30 seconds
+        if (this.scheduleTimer) {
+            clearInterval(this.scheduleTimer);
+        }
+        this.scheduleTimer = setInterval(function() {
+            self.checkSchedule();
+        }, 30000);
+    },
+
+    checkSchedule: function() {
+        if (!this.config.scheduleEnabled || !this.config.schedules || this.config.schedules.length === 0) {
+            return;
+        }
+        
+        const now = new Date();
+        const currentTime = ("0" + now.getHours()).slice(-2) + ":" + ("0" + now.getMinutes()).slice(-2);
+        
+        let isInSchedule = false;
+        
+        // Check if current time falls within any schedule
+        for (let schedule of this.config.schedules) {
+            if (currentTime >= schedule.start && currentTime < schedule.end) {
+                isInSchedule = true;
+                break;
+            }
+        }
+        
+        // Show or hide based on schedule
+        if (isInSchedule && this.isScheduleHidden) {
+            // Time to show
+            this.isScheduleHidden = false;
+            const wrapper = document.querySelector(".mmm-moving-portrait-wrapper");
+            if (wrapper) {
+                wrapper.style.display = "block";
+            }
+            Log.info("MMM-MovingPortrait: Schedule triggered show");
+            if (!this.isRotationPaused && this.config.portraits.length > 1 && this.config.rotationInterval > 0) {
+                this.scheduleRotation();
+            }
+        } else if (!isInSchedule && !this.isScheduleHidden) {
+            // Time to hide
+            this.isScheduleHidden = true;
+            const wrapper = document.querySelector(".mmm-moving-portrait-wrapper");
+            if (wrapper) {
+                wrapper.style.display = "none";
+            }
+            if (this.rotationTimer) {
+                clearTimeout(this.rotationTimer);
+            }
+            Log.info("MMM-MovingPortrait: Schedule triggered hide");
+        }
     },
 
     getStyles: function() {

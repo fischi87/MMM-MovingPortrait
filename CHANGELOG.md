@@ -5,6 +5,29 @@ All notable changes to MMM-MovingPortrait will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0] - 2026-01-12
+
+### Added
+- **Time-Based Schedule** - Control module visibility based on time of day
+  - `scheduleEnabled` configuration option (default: false)
+  - `schedules` array for defining time windows (HH:MM format)
+  - Automatic show/hide based on scheduled times
+  - Schedule checker runs every 30 seconds
+  - Schedules work independently of notifications
+  - Multiple time windows per day support
+- `isScheduleHidden` state to track schedule-based visibility
+- `scheduleTimer` for managing schedule checking interval
+- `startScheduleChecker()` method for schedule management
+- `checkSchedule()` method for time-based visibility logic
+- Enhanced `suspend()` and `resume()` methods with schedule support
+- Three new example configurations (Examples 11, 12, 13)
+- "Time-Based Schedule" documentation section in README
+
+### Example Use Cases
+- Show portrait only during business hours (9 AM - 5 PM)
+- Display in multiple time windows (morning and evening)
+- Hide during night hours automatically
+
 ## [1.1.0] - 2026-01-11
 
 ### Added

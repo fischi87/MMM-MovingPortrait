@@ -1,7 +1,7 @@
 {
   "name": "mmm-movingportrait",
-  "version": "1.1.0",
-  "description": "MagicMirror² module for displaying animated portrait videos with rotation and customizable frames",
+  "version": "1.2.0",
+  "description": "MagicMirror² module for displaying animated portrait videos with rotation, time-based scheduling, and customizable frames",
   "main": "MMM-MovingPortrait.js",
   "scripts": {
     "lint": "eslint MMM-MovingPortrait.js",
