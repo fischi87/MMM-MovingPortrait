@@ -24,9 +24,6 @@ Module.register("MMM-MovingPortrait", {
         rotationInterval: 30000,  // Time in ms before switching to next portrait (0 = no rotation)
         fadeTransitionDuration: 2000,  // Duration of crossfade in ms
 
-        // Edge effects
-        softEdges: true,  // Smooth edges with box-shadow effect
-
         // Info display
         showName: false,  // Show portrait name as overlay
         namePosition: "bottom",  // "top" or "bottom"
@@ -44,7 +41,11 @@ Module.register("MMM-MovingPortrait", {
 
         // Time-based schedule
         scheduleEnabled: false,  // Enable time-based visibility control
-        schedules: []  // Array of {start: "HH:MM", end: "HH:MM"} objects
+        schedules: [],  // Array of {start: "HH:MM", end: "HH:MM"} objects
+
+        // Erweiterungen für MQTT-Trigger
+        activeDuration: 10000, // Zeit in ms, wie lange das Modul nach Trigger sichtbar ist
+        exclusiveMode: false   // Wenn true, werden alle anderen Module ausgeblendet
     },
 
     currentIndex: 0,
@@ -53,6 +54,7 @@ Module.register("MMM-MovingPortrait", {
     isRotationPaused: false,
     scheduleTimer: null,
     isScheduleHidden: false,  // Track if module is hidden by schedule
+    hideTimer: null,  // Timer for exclusive mode duration
 
     start: function () {
         Log.info("Starting module: " + this.name);
@@ -75,11 +77,20 @@ Module.register("MMM-MovingPortrait", {
         if (this.config.portraits.length > 1 && this.config.rotationInterval > 0) {
             this.scheduleRotation();
         }
+
+        // Modul initial verstecken - wird nur per PORTRAIT_EXKLUSIV eingeblendet
+        this.isVisible = false;
+        Log.info("MMM-MovingPortrait: Module initially hidden, waiting for PORTRAIT_EXKLUSIV trigger");
     },
 
     getDom: function () {
         const wrapper = document.createElement("div");
         wrapper.className = "mmm-moving-portrait-wrapper";
+
+        // Initial verstecken falls noch nicht sichtbar gemacht
+        if (!this.isVisible) {
+            wrapper.style.display = "none";
+        }
 
         // Create container for video with frame
         const container = document.createElement("div");
@@ -101,13 +112,6 @@ Module.register("MMM-MovingPortrait", {
 
         container.appendChild(video1);
         container.appendChild(video2);
-
-        // Add soft edges overlay if enabled
-        if (this.config.softEdges) {
-            const overlay = document.createElement("div");
-            overlay.className = "soft-edges-overlay";
-            container.appendChild(overlay);
-        }
 
         // Add character name if enabled
         if (this.config.showName) {
@@ -231,6 +235,16 @@ Module.register("MMM-MovingPortrait", {
     },
 
     resume: function () {
+        Log.info("MMM-MovingPortrait: Resumed");
+
+        // Play all videos
+        const videos = document.querySelectorAll(".portrait-video");
+        videos.forEach(v => {
+            v.play().catch(err => {
+                Log.error("MMM-MovingPortrait: Video play failed:", err);
+            });
+        });
+
         // Resume schedule checker if enabled
         if (this.config.scheduleEnabled && this.config.schedules.length > 0) {
             this.startScheduleChecker();
@@ -242,7 +256,10 @@ Module.register("MMM-MovingPortrait", {
     },
 
     notificationReceived: function (notification, payload, sender) {
-        Log.info("MMM-MovingPortrait received notification: " + notification);
+        // Nur PORTRAIT-Notifications loggen
+        if (notification.startsWith("PORTRAIT_")) {
+            Log.info("MMM-MovingPortrait received notification: " + notification);
+        }
 
         switch (notification) {
             case "PORTRAIT_SHOW":
@@ -272,6 +289,9 @@ Module.register("MMM-MovingPortrait", {
             case "PORTRAIT_STOP_ROTATION":
                 this.stopRotation();
                 break;
+            case "PORTRAIT_EXKLUSIV":
+                this.playRandomPortraitForDuration();
+                break;
         }
     },
 
@@ -283,12 +303,21 @@ Module.register("MMM-MovingPortrait", {
         if (this.config.randomOnShow && this.config.portraits.length > 1) {
             this.currentIndex = Math.floor(Math.random() * this.config.portraits.length);
             Log.info("MMM-MovingPortrait: Random start at index " + this.currentIndex);
-            this.updateDom(300);  // Update DOM to show new video
+            this.updateDom(300);
+
+            // Force video play after DOM update
+            setTimeout(() => {
+                const videos = document.querySelectorAll(".portrait-video");
+                videos.forEach(v => {
+                    v.play().catch(err => {
+                        Log.error("MMM-MovingPortrait: Video play failed:", err);
+                    });
+                });
+            }, 500);
         }
 
         // MagicMirror's built-in show
-        this.show(1000, { lockString: this.identifier });
-
+        this.show(1000, function () { }, { lockString: this.identifier });
         // Resume rotation
         if (!this.isRotationPaused && this.config.portraits.length > 1 && this.config.rotationInterval > 0) {
             this.scheduleRotation();
@@ -297,7 +326,7 @@ Module.register("MMM-MovingPortrait", {
 
     hideModule: function () {
         this.isVisible = false;
-        this.hide(1000, { lockString: this.identifier });
+        this.hide(1000, function () { }, { lockString: this.identifier });
 
         // Pause videos
         const videos = document.querySelectorAll(".portrait-video");
@@ -450,6 +479,117 @@ Module.register("MMM-MovingPortrait", {
             }
             Log.info("MMM-MovingPortrait: Schedule triggered hide");
         }
+    },
+
+    playRandomPortraitForDuration: function () {
+        const self = this;
+
+        Log.info("MMM-MovingPortrait: PORTRAIT_EXKLUSIV triggered");
+
+        // Timer für Auto-Hide löschen falls bereits vorhanden
+        if (this.hideTimer) {
+            clearTimeout(this.hideTimer);
+        }
+
+        // WICHTIG: Rotation stoppen während exclusiver Anzeige
+        if (this.rotationTimer) {
+            clearTimeout(this.rotationTimer);
+            this.rotationTimer = null;
+        }
+
+        // 1. Zufälliges Portrait wählen
+        if (this.config.portraits.length > 1) {
+            this.currentIndex = Math.floor(Math.random() * this.config.portraits.length);
+            Log.info("MMM-MovingPortrait: Random portrait selected: " + this.currentIndex);
+        }
+
+        // 2. Andere Module ausblenden (wenn exclusiveMode aktiviert)
+        if (this.config.exclusiveMode) {
+            MM.getModules().exceptModule(this).enumerate(function (module) {
+                module.hide(1000, function () { }, { lockString: "exclusivePortrait" });
+            });
+        }
+
+        // 3. Modul sichtbar machen und DOM updaten
+        this.isVisible = true;
+        this.updateDom(0);
+
+        // 4. Wrapper sichtbar machen und Video starten
+        setTimeout(function () {
+            const wrapper = document.querySelector(".mmm-moving-portrait-wrapper");
+            if (wrapper) {
+                wrapper.style.display = "block";
+                Log.info("MMM-MovingPortrait: Module is now visible");
+            }
+
+            // Video nach kurzer Verzögerung starten
+            setTimeout(function () {
+                const container = document.querySelector(".mmm-moving-portrait-wrapper");
+                if (!container) {
+                    Log.error("MMM-MovingPortrait: Container not found!");
+                    return;
+                }
+
+                // Nur das AKTIVE Video abspielen (nicht das inaktive für Crossfade)
+                const activeVideo = container.querySelector(".portrait-video.active");
+                if (!activeVideo) {
+                    Log.error("MMM-MovingPortrait: Active video not found!");
+                    return;
+                }
+
+                Log.info("MMM-MovingPortrait: Starting active video, src: " + activeVideo.src);
+
+                // Eigenschaften nochmal sicherstellen (falls DOM-Update sie zurücksetzte)
+                activeVideo.muted = true;
+                activeVideo.loop = true;
+                activeVideo.playsInline = true;
+
+                // Von vorne starten und abspielen
+                activeVideo.currentTime = 0;
+
+                const playPromise = activeVideo.play();
+                if (playPromise !== undefined) {
+                    playPromise.then(function () {
+                        Log.info("MMM-MovingPortrait: Active video playing successfully!");
+                    }).catch(function (err) {
+                        Log.error("MMM-MovingPortrait: Video play failed:", err);
+                        // Erneuter Versuch nach kurzer Verzögerung
+                        setTimeout(function () {
+                            activeVideo.play();
+                        }, 100);
+                    });
+                }
+            }, 500);
+        }, 300);
+
+        // 5. Timer für Auto-Hide setzen
+        const duration = this.config.activeDuration || 10000;
+        Log.info("MMM-MovingPortrait: Auto-hide timer set for " + duration + "ms");
+
+        this.hideTimer = setTimeout(function () {
+            Log.info("MMM-MovingPortrait: Duration expired, hiding");
+
+            const wrapper = document.querySelector(".mmm-moving-portrait-wrapper");
+            if (wrapper) {
+                wrapper.style.display = "none";
+            }
+
+            // Videos pausieren
+            const videos = document.querySelectorAll(".portrait-video");
+            videos.forEach(function (v) {
+                v.pause();
+                v.currentTime = 0;
+            });
+
+            self.isVisible = false;
+
+            // Andere Module wieder einblenden
+            if (self.config.exclusiveMode) {
+                MM.getModules().exceptModule(self).enumerate(function (module) {
+                    module.show(1000, function () { }, { lockString: "exclusivePortrait" });
+                });
+            }
+        }, duration);
     },
 
     getStyles: function () {

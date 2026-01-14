@@ -11,7 +11,6 @@ Perfect for creating a Hogwarts-style moving portrait gallery on your MagicMirro
 - 📹 **Multiple Portrait Support** - Display and rotate between multiple videos
 - 🔄 **Smooth Transitions** - Crossfade between portraits with configurable duration
 - 🖼️ **Frame Styles** - Choose from Hogwarts Gold, Vintage Wood, Modern, or No Frame
-- ✨ **Soft Edges** - Optional smooth edge transitions for a painted look
 - 📝 **Name Overlay** - Show character names with stylish overlay
 - 🔔 **Notification Support** - Control playback and visibility via notifications
 - ⚙️ **Fully Configurable** - Customize size, opacity, timing, and more
@@ -79,9 +78,6 @@ Add the module to your `config/config.js` file:
         rotationInterval: 30000,  // 30 seconds (0 = no rotation)
         fadeTransitionDuration: 2000,  // 2 seconds
         
-        // Effects
-        softEdges: true,  // Smooth edge transitions
-        
         // Name display
         showName: false,  // Show portrait name
         namePosition: "bottom",  // "top" or "bottom"
@@ -90,6 +86,10 @@ Add the module to your `config/config.js` file:
         autoplay: true,
         loop: true,
         muted: true
+        
+        // --- Erweiterungen für Exklusiv-Trigger ---
+        activeDuration: 15000, // Zeit in ms, wie lange das Modul nach Trigger sichtbar ist
+        exclusiveMode: true    // Wenn true, werden alle anderen Module ausgeblendet
     }
 }
 ```
@@ -105,13 +105,14 @@ Add the module to your `config/config.js` file:
 | `frameStyle` | String | `"hogwarts"` | Frame style: `"hogwarts"`, `"vintage"`, `"modern"`, `"none"` |
 | `rotationInterval` | Number | `30000` | Time in milliseconds between portrait changes (0 = no rotation) |
 | `fadeTransitionDuration` | Number | `2000` | Duration of crossfade transition in milliseconds |
-| `softEdges` | Boolean | `true` | Enable soft edge transitions with box-shadow effect |
 | `showName` | Boolean | `false` | Display portrait name as overlay |
 | `namePosition` | String | `"bottom"` | Position of name overlay: `"top"` or `"bottom"` |
 | `autoplay` | Boolean | `true` | Autoplay videos |
 | `loop` | Boolean | `true` | Loop videos |
 | `muted` | Boolean | `true` | Mute video audio |
 | `randomOnShow` | Boolean | `true` | Start with random portrait when module is shown |
+| `activeDuration` | Number | `10000` | Zeit in Millisekunden, wie lange das Modul nach Exklusiv-Trigger sichtbar ist |
+| `exclusiveMode` | Boolean | `false` | Wenn true, werden alle anderen Module für die Dauer ausgeblendet |
 
 ## Frame Styles
 
@@ -193,19 +194,23 @@ Then use in config:
 frameStyle: "custom"
 ```
 
-### Adjust Soft Edge Effect
-
-Edit the `.soft-edges-overlay` class in CSS:
-
-```css
-.soft-edges-overlay {
-    box-shadow: inset 0 0 100px 60px black;  /* Adjust values */
-}
-```
-
 ## Notifications
 
 The module supports the following notifications for controlling playback and visibility:
+
+### Exklusiv-Trigger für zufälliges Portrait
+
+Um das Modul für eine definierte Zeit exklusiv anzuzeigen und ein zufälliges Video abzuspielen, sende die Notification:
+
+```javascript
+this.sendNotification("PORTRAIT_EXKLUSIV");
+```
+
+**Ablauf:**
+- Bei Empfang der Notification wird ein zufälliges Video gewählt und das Modul angezeigt.
+- Nach Ablauf der Zeit (activeDuration) wird das Modul (und ggf. andere Module) wieder ausgeblendet.
+
+Du kannst z.B. mit dem Modul [MMM-MQTTbridge](https://github.com/Tom-Hirschberger/MMM-MQTTbridge) oder aus einem eigenen Modul diese Notification senden.
 
 ### Show / Hide / Toggle
 
@@ -364,8 +369,7 @@ pm2 restart mm
         width: "350px",
         height: "500px",
         opacity: 0.9,
-        frameStyle: "modern",
-        softEdges: false
+        frameStyle: "modern"
     }
 }
 ```
@@ -386,6 +390,15 @@ Inspired by the moving portraits from Harry Potter and the Hogwarts castle.
 
 ## Changelog
 
+### Version 1.3.0 (2026-01-14)
+- **NEW:** Added `PORTRAIT_EXKLUSIV` notification for exclusive portrait display
+- **NEW:** Added `activeDuration` config option - control how long portrait is visible after trigger
+- **NEW:** Added `exclusiveMode` config option - hide all other modules during portrait display
+- **NEW:** Random video selection on each trigger
+- **REMOVED:** Soft edges feature (softEdges option removed)
+- Improved MQTT integration documentation
+- Enhanced notification system for external triggers
+
 ### Version 1.1.0 (2026-01-11)
 - Added Notification Support for external module control
 - Added module visibility control (show/hide/toggle)
@@ -398,7 +411,6 @@ Inspired by the moving portraits from Harry Potter and the Hogwarts castle.
 - Multiple portrait support with rotation
 - Four frame styles (Hogwarts, Vintage, Modern, None)
 - Smooth crossfade transitions
-- Soft edge effects
 - Name overlay support
 - Fully configurable
 
