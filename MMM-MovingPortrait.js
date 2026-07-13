@@ -12,7 +12,9 @@ Module.register("MMM-MovingPortrait", {
             { file: "portrait.mp4", name: "Portrait 1" }
         ],
 
-        // Display settings
+        // Display settings - width/height define the MAX bounding box;
+        // the container is resized to each video's real aspect ratio
+        // within it, so it never gets cropped or stretched.
         width: "400px",
         height: "600px",
         opacity: 0.85,
@@ -126,6 +128,7 @@ Module.register("MMM-MovingPortrait", {
     },
 
     createVideoElement: function (index) {
+        const self = this;
         const portrait = this.config.portraits[index];
         const video = document.createElement("video");
 
@@ -141,7 +144,38 @@ Module.register("MMM-MovingPortrait", {
         video.style.objectFit = "cover";
         video.style.display = "block";
 
+        // Resize the frame to this video's real aspect ratio once known
+        video.addEventListener("loadedmetadata", function () {
+            self.applyResponsiveSize(video);
+        }, { once: true });
+
         return video;
+    },
+
+    // Fits the container to the video's native aspect ratio, bounded by
+    // config.width/height (treated as a max box, not a fixed size).
+    applyResponsiveSize: function (video) {
+        const container = document.querySelector(".portrait-container");
+        if (!container || !video.videoWidth || !video.videoHeight) {
+            return;
+        }
+
+        const maxWidth = parseInt(this.config.width, 10);
+        const maxHeight = parseInt(this.config.height, 10);
+        const videoRatio = video.videoWidth / video.videoHeight;
+        const maxRatio = maxWidth / maxHeight;
+
+        let width, height;
+        if (videoRatio > maxRatio) {
+            width = maxWidth;
+            height = Math.round(maxWidth / videoRatio);
+        } else {
+            height = maxHeight;
+            width = Math.round(maxHeight * videoRatio);
+        }
+
+        container.style.width = width + "px";
+        container.style.height = height + "px";
     },
 
     scheduleRotation: function () {
@@ -194,8 +228,12 @@ Module.register("MMM-MovingPortrait", {
         }
 
         // Update inactive video source
+        const self = this;
         const portrait = this.config.portraits[this.currentIndex];
         inactiveVideo.src = this.file(this.config.videosPath + portrait.file);
+        inactiveVideo.addEventListener("loadedmetadata", function () {
+            self.applyResponsiveSize(inactiveVideo);
+        }, { once: true });
 
         // Perform crossfade
         const duration = this.config.fadeTransitionDuration;

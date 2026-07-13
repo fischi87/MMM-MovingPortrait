@@ -99,8 +99,8 @@ Add the module to your `config/config.js` file:
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
 | `portraits` | Array | `[{file: "portrait.mp4", name: "Portrait 1"}]` | Array of portrait objects with `file` and optional `name` |
-| `width` | String | `"400px"` | Width of the portrait display |
-| `height` | String | `"600px"` | Height of the portrait display |
+| `width` | String | `"400px"` | Max width of the portrait display. The frame is scaled to each video's real aspect ratio, never exceeding this |
+| `height` | String | `"600px"` | Max height of the portrait display. The frame is scaled to each video's real aspect ratio, never exceeding this |
 | `opacity` | Number | `0.85` | Opacity of the entire portrait (0.0 to 1.0) |
 | `frameStyle` | String | `"hogwarts"` | Frame style: `"hogwarts"`, `"vintage"`, `"modern"`, `"none"` |
 | `rotationInterval` | Number | `30000` | Time in milliseconds between portrait changes (0 = no rotation) |
