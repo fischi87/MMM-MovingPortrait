@@ -503,14 +503,7 @@ Module.register("MMM-MovingPortrait", {
             Log.info("MMM-MovingPortrait: Random portrait selected: " + this.currentIndex);
         }
 
-        // 2. Andere Module ausblenden (wenn exclusiveMode aktiviert)
-        if (this.config.exclusiveMode) {
-            MM.getModules().exceptModule(this).enumerate(function (module) {
-                module.hide(1000, function () { }, { lockString: "exclusivePortrait" });
-            });
-        }
-
-        // 3. Modul sichtbar machen und DOM updaten - ueber this.show() (MagicMirror's
+        // 2. Modul sichtbar machen und DOM updaten - ueber this.show() (MagicMirror's
         // eigene Sichtbarkeits-API), nicht ueber einen manuellen style.display-Hack.
         // showModule() (PORTRAIT_SHOW) nutzt denselben Ablauf und funktioniert
         // zuverlaessig; der vorherige manuelle Ansatz liess das Video haengen.
@@ -518,8 +511,11 @@ Module.register("MMM-MovingPortrait", {
         this.updateDom(0);
         this.show(300, function () { }, { lockString: this.identifier });
 
-        // 4. Video starten - beide Video-Elemente wie im bewaehrten showModule()-Pfad,
-        // nicht nur das aktive.
+        // 3. Video starten - beide Video-Elemente wie im bewaehrten showModule()-Pfad,
+        // nicht nur das aktive. Das Ausblenden der anderen Module (Schritt 4) passiert
+        // erst DANACH: gleichzeitiges Ausblenden vieler Module (Fade-Animationen) UND
+        // ein frisches Video dekodieren ueberlastet schwaechere Hardware (Raspberry Pi)
+        // und liess das Video vorher haengen, bevor es je einen Frame rendern konnte.
         setTimeout(function () {
             Log.info("MMM-MovingPortrait: Module is now visible");
             const videos = document.querySelectorAll(".portrait-video");
@@ -528,6 +524,16 @@ Module.register("MMM-MovingPortrait", {
                     Log.error("MMM-MovingPortrait: Video play failed:", err);
                 });
             });
+
+            // 4. Andere Module ausblenden (wenn exclusiveMode aktiviert) - erst
+            // nachdem das Video einen Kopfstart beim Laden/Dekodieren bekommen hat.
+            setTimeout(function () {
+                if (self.config.exclusiveMode) {
+                    MM.getModules().exceptModule(self).enumerate(function (module) {
+                        module.hide(1000, function () { }, { lockString: "exclusivePortrait" });
+                    });
+                }
+            }, 400);
         }, 500);
 
         // 5. Timer für Auto-Hide setzen
