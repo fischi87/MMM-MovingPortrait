@@ -544,9 +544,10 @@ Module.register("MMM-MovingPortrait", {
                 activeVideo.loop = true;
                 activeVideo.playsInline = true;
 
-                // Von vorne starten und abspielen
-                activeVideo.currentTime = 0;
-
+                // Kein manueller currentTime=0-Reset hier: das Element ist frisch
+                // erzeugt und laedt bereits per autoplay - ein zusaetzlicher Seek
+                // kollidiert mit diesem Ladevorgang und laesst das Video haengen
+                // (readyState bleibt bei HAVE_METADATA, nie spielbar).
                 const playPromise = activeVideo.play();
                 if (playPromise !== undefined) {
                     playPromise.then(function () {
