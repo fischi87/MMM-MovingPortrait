@@ -510,58 +510,25 @@ Module.register("MMM-MovingPortrait", {
             });
         }
 
-        // 3. Modul sichtbar machen und DOM updaten
+        // 3. Modul sichtbar machen und DOM updaten - ueber this.show() (MagicMirror's
+        // eigene Sichtbarkeits-API), nicht ueber einen manuellen style.display-Hack.
+        // showModule() (PORTRAIT_SHOW) nutzt denselben Ablauf und funktioniert
+        // zuverlaessig; der vorherige manuelle Ansatz liess das Video haengen.
         this.isVisible = true;
         this.updateDom(0);
+        this.show(300, function () { }, { lockString: this.identifier });
 
-        // 4. Wrapper sichtbar machen und Video starten
+        // 4. Video starten - beide Video-Elemente wie im bewaehrten showModule()-Pfad,
+        // nicht nur das aktive.
         setTimeout(function () {
-            const wrapper = document.querySelector(".mmm-moving-portrait-wrapper");
-            if (wrapper) {
-                wrapper.style.display = "block";
-                Log.info("MMM-MovingPortrait: Module is now visible");
-            }
-
-            // Video nach kurzer Verzögerung starten
-            setTimeout(function () {
-                const container = document.querySelector(".mmm-moving-portrait-wrapper");
-                if (!container) {
-                    Log.error("MMM-MovingPortrait: Container not found!");
-                    return;
-                }
-
-                // Nur das AKTIVE Video abspielen (nicht das inaktive für Crossfade)
-                const activeVideo = container.querySelector(".portrait-video.active");
-                if (!activeVideo) {
-                    Log.error("MMM-MovingPortrait: Active video not found!");
-                    return;
-                }
-
-                Log.info("MMM-MovingPortrait: Starting active video, src: " + activeVideo.src);
-
-                // Eigenschaften nochmal sicherstellen (falls DOM-Update sie zurücksetzte)
-                activeVideo.muted = true;
-                activeVideo.loop = true;
-                activeVideo.playsInline = true;
-
-                // Kein manueller currentTime=0-Reset hier: das Element ist frisch
-                // erzeugt und laedt bereits per autoplay - ein zusaetzlicher Seek
-                // kollidiert mit diesem Ladevorgang und laesst das Video haengen
-                // (readyState bleibt bei HAVE_METADATA, nie spielbar).
-                const playPromise = activeVideo.play();
-                if (playPromise !== undefined) {
-                    playPromise.then(function () {
-                        Log.info("MMM-MovingPortrait: Active video playing successfully!");
-                    }).catch(function (err) {
-                        Log.error("MMM-MovingPortrait: Video play failed:", err);
-                        // Erneuter Versuch nach kurzer Verzögerung
-                        setTimeout(function () {
-                            activeVideo.play();
-                        }, 100);
-                    });
-                }
-            }, 500);
-        }, 300);
+            Log.info("MMM-MovingPortrait: Module is now visible");
+            const videos = document.querySelectorAll(".portrait-video");
+            videos.forEach(function (v) {
+                v.play().catch(function (err) {
+                    Log.error("MMM-MovingPortrait: Video play failed:", err);
+                });
+            });
+        }, 500);
 
         // 5. Timer für Auto-Hide setzen
         const duration = this.config.activeDuration || 10000;
@@ -570,10 +537,8 @@ Module.register("MMM-MovingPortrait", {
         this.hideTimer = setTimeout(function () {
             Log.info("MMM-MovingPortrait: Duration expired, hiding");
 
-            const wrapper = document.querySelector(".mmm-moving-portrait-wrapper");
-            if (wrapper) {
-                wrapper.style.display = "none";
-            }
+            self.isVisible = false;
+            self.hide(1000, function () { }, { lockString: self.identifier });
 
             // Videos pausieren
             const videos = document.querySelectorAll(".portrait-video");
@@ -581,8 +546,6 @@ Module.register("MMM-MovingPortrait", {
                 v.pause();
                 v.currentTime = 0;
             });
-
-            self.isVisible = false;
 
             // Andere Module wieder einblenden
             if (self.config.exclusiveMode) {
